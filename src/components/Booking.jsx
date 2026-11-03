@@ -2,25 +2,170 @@ import React, { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
 import bookingpic2 from "../img/bookingpic2.png";
 
-const COUNTRY_CONFIG = {
-  India: {
-    tz: "Asia/Kolkata",
-    code: "+91",
-    currency: "₹",
-    label: "India (+91)",
-  },
-  USA: { tz: "America/New_York", code: "+1", currency: "$", label: "USA (+1)" },
-  Canada: {
-    tz: "America/Toronto",
-    code: "+1",
-    currency: "$",
-    label: "Canada (+1)",
-  },
-};
+const PAY_IN_LOCAL_CURRENCY = true;
+
+const BASE_PRICES_INR = { 30: 5100, 60: 7000, 90: 11000 };
 
 const BOOKED_KEY = "booked_slots_seemaa";
+const RATES_KEY = "inr_rates_seemaa";
+const RATES_TTL_MS = 6 * 60 * 60 * 1000; 
 const COUPON_CODE2 = "DIVIYAVEDIC";
 const COUPON_DISCOUNT2 = 0.1;
+
+
+const COUNTRY_CONFIG = {
+  India: { name: "India", tz: "Asia/Kolkata", code: "+91", currency: "INR", symbol: "₹", label: "India (+91)" },
+  Canada: { name: "Canada", tz: "America/Toronto", code: "+1", currency: "CAD", symbol: "CA$", label: "Canada (+1)" },
+  USA: { name: "USA", tz: "America/New_York", code: "+1", currency: "USD", symbol: "$", label: "USA (+1)" },
+  UK: { name: "UK", tz: "Europe/London", code: "+44", currency: "GBP", symbol: "£", label: "United Kingdom (+44)" },
+  UAE: { name: "UAE", tz: "Asia/Dubai", code: "+971", currency: "AED", symbol: "AED ", label: "UAE (+971)" },
+  Australia: { name: "Australia", tz: "Australia/Sydney", code: "+61", currency: "AUD", symbol: "A$", label: "Australia (+61)" },
+  Singapore: { name: "Singapore", tz: "Asia/Singapore", code: "+65", currency: "SGD", symbol: "S$", label: "Singapore (+65)" },
+  NewZealand: { name: "New Zealand", tz: "Pacific/Auckland", code: "+64", currency: "NZD", symbol: "NZ$", label: "New Zealand (+64)" },
+  Germany: { name: "Germany", tz: "Europe/Berlin", code: "+49", currency: "EUR", symbol: "€", label: "Germany (+49)" },
+  France: { name: "France", tz: "Europe/Paris", code: "+33", currency: "EUR", symbol: "€", label: "France (+33)" },
+  Italy: { name: "Italy", tz: "Europe/Rome", code: "+39", currency: "EUR", symbol: "€", label: "Italy (+39)" },
+  Spain: { name: "Spain", tz: "Europe/Madrid", code: "+34", currency: "EUR", symbol: "€", label: "Spain (+34)" },
+  Netherlands: { name: "Netherlands", tz: "Europe/Amsterdam", code: "+31", currency: "EUR", symbol: "€", label: "Netherlands (+31)" },
+  Ireland: { name: "Ireland", tz: "Europe/Dublin", code: "+353", currency: "EUR", symbol: "€", label: "Ireland (+353)" },
+  Other: { name: "Your local", tz: "UTC", code: "", currency: "USD", symbol: "$", label: "Other country (USD)" },
+};
+
+const ISO_TO_KEY = {
+  IN: "India", CA: "Canada", US: "USA", GB: "UK", AE: "UAE", AU: "Australia",
+  SG: "Singapore", NZ: "NewZealand", DE: "Germany", FR: "France", IT: "Italy",
+  ES: "Spain", NL: "Netherlands", IE: "Ireland",
+};
+
+const FALLBACK_RATES = {
+  INR: 1, CAD: 0.01473, USD: 0.01055, EUR: 0.00942, GBP: 0.0082,
+  AED: 0.03875, AUD: 0.0161, SGD: 0.0137, NZD: 0.0182,
+};
+
+const ceilTo5 = (n) => Math.ceil(n / 5 - 1e-9) * 5;
+const round2 = (n) => Math.round(n * 100) / 100;
+const fmtAmt = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
+
+function getLocalPrice(inrPrice, currency, rates) {
+  if (currency === "INR") return inrPrice;
+  const rate = rates[currency] ?? FALLBACK_RATES[currency];
+  return ceilTo5(inrPrice * rate);
+}
+
+function readCachedRates(onlyFresh = false) {
+  try {
+    const c = JSON.parse(localStorage.getItem(RATES_KEY) || "null");
+    if (!c || !c.rates) return null;
+    if (onlyFresh && Date.now() - c.ts > RATES_TTL_MS) return null;
+    return { ...FALLBACK_RATES, ...c.rates };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchLiveRates() {
+  const cached = readCachedRates(true);
+  if (cached) return cached;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 5000);
+    const res = await fetch("https://open.er-api.com/v6/latest/INR", {
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    const data = await res.json();
+    if (data && data.result === "success" && data.rates) {
+      const rates = { INR: 1 };
+      Object.values(COUNTRY_CONFIG).forEach((c) => {
+        if (data.rates[c.currency]) rates[c.currency] = data.rates[c.currency];
+      });
+      localStorage.setItem(
+        RATES_KEY,
+        JSON.stringify({ ts: Date.now(), rates }),
+      );
+      return { ...FALLBACK_RATES, ...rates };
+    }
+  } catch {
+  }
+  return null;
+}
+
+const CANADA_TZ = new Set([
+  "America/Toronto", "America/Vancouver", "America/Edmonton", "America/Winnipeg",
+  "America/Halifax", "America/St_Johns", "America/Regina", "America/Montreal",
+  "America/Moncton", "America/Glace_Bay", "America/Goose_Bay", "America/Whitehorse",
+  "America/Yellowknife", "America/Iqaluit", "America/Thunder_Bay", "America/Nipigon",
+]);
+
+const US_TZ = new Set([
+  "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles",
+  "America/Phoenix", "America/Anchorage", "America/Detroit", "America/Boise",
+  "America/Juneau", "America/Adak", "Pacific/Honolulu",
+]);
+
+const TZ_TO_KEY = {
+  "Asia/Kolkata": "India", "Asia/Calcutta": "India",
+  "Europe/London": "UK", "Asia/Dubai": "UAE", "Asia/Singapore": "Singapore",
+  "Pacific/Auckland": "NewZealand", "Europe/Berlin": "Germany", "Europe/Paris": "France",
+  "Europe/Rome": "Italy", "Europe/Madrid": "Spain", "Europe/Amsterdam": "Netherlands",
+  "Europe/Dublin": "Ireland",
+};
+
+function tzToKey(tz) {
+  if (!tz) return "Other";
+  if (CANADA_TZ.has(tz)) return "Canada";
+  if (
+    US_TZ.has(tz) ||
+    tz.startsWith("America/Indiana/") ||
+    tz.startsWith("America/Kentucky/") ||
+    tz.startsWith("America/North_Dakota/")
+  )
+    return "USA";
+  if (tz.startsWith("Australia/")) return "Australia";
+  return TZ_TO_KEY[tz] || "Other";
+}
+
+function safeTz(tz) {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return tz;
+  } catch {
+    return null;
+  }
+}
+
+async function detectLocation() {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4000);
+    const res = await fetch("https://ipapi.co/json/", { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (res.ok) {
+      const d = await res.json();
+      if (d && d.country_code) {
+        return {
+          key: ISO_TO_KEY[d.country_code] || "Other",
+          tz: d.timezone ? safeTz(d.timezone) : null,
+        };
+      }
+    }
+  } catch {
+  }
+  const tz = safeTz(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  return { key: tzToKey(tz), tz };
+}
+
+function tzAbbr(tz) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      timeZoneName: "short",
+    }).formatToParts(new Date());
+    return parts.find((p) => p.type === "timeZoneName")?.value || tz;
+  } catch {
+    return tz;
+  }
+}
 
 function generateSlots(durationMinutes) {
   const slots = [];
@@ -65,7 +210,7 @@ function getNowInTZ(tz) {
     year: parseInt(get("year")),
     month: parseInt(get("month")) - 1,
     day: parseInt(get("day")),
-    hour: parseInt(get("hour")),
+    hour: parseInt(get("hour")) % 24,
     minute: parseInt(get("minute")),
   };
 }
@@ -262,8 +407,13 @@ function SlotPicker({
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  BOOKING                                                            */
+/* ------------------------------------------------------------------ */
+
 const Booking = () => {
   const form = useRef();
+  const userPickedCountry = useRef(false);
   const [duration, setDuration] = useState("30");
   const [step, setStep] = useState("price");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -272,28 +422,81 @@ const Booking = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [country, setCountry] = useState("India");
+  const [detected, setDetected] = useState(null);
+  const [rates, setRates] = useState(() => readCachedRates() || FALLBACK_RATES);
   const [couponInput, setCouponInput] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponError, setCouponError] = useState("");
   const [appliedCouponCode, setAppliedCouponCode] = useState("");
 
-  const tz = COUNTRY_CONFIG[country].tz;
-  const basePriceMap = { 30: 5100, 60: 7000, 90: 11000 };
+  /* ---- country, timezone, currency ---- */
+  const cfg = COUNTRY_CONFIG[country];
+  const tz =
+    detected && detected.key === country && detected.tz ? detected.tz : cfg.tz;
+  const tzLabel = tzAbbr(tz);
+  const timeName = `${cfg.name} time`;
+
+  /* ---- prices ---- */
   const durationMinutes = duration === "30" ? 30 : duration === "60" ? 60 : 90;
-  const basePrice = basePriceMap[duration];
+  const basePriceInr = BASE_PRICES_INR[duration];
+  const basePrice = getLocalPrice(basePriceInr, cfg.currency, rates);
   const appliedDiscount =
     appliedCouponCode === COUPON_CODE2 ? COUPON_DISCOUNT2 : 0;
-  const finalPrice = couponApplied
-    ? Math.round(basePrice * (1 - appliedDiscount))
-    : basePrice;
-  const discount = basePrice - finalPrice;
 
+  const applyDiscount = (amount, currency) =>
+    currency === "INR"
+      ? Math.round(amount * (1 - appliedDiscount))
+      : round2(amount * (1 - appliedDiscount));
+
+  const finalPrice = couponApplied
+    ? applyDiscount(basePrice, cfg.currency)
+    : basePrice;
+  const discount = round2(basePrice - finalPrice);
+  const finalPriceInr = couponApplied
+    ? applyDiscount(basePriceInr, "INR")
+    : basePriceInr;
+
+  const payLocal = PAY_IN_LOCAL_CURRENCY || cfg.currency === "INR";
+  const chargeCurrency = payLocal ? cfg.currency : "INR";
+  const chargeAmount = payLocal ? finalPrice : finalPriceInr;
+
+  const money = (n, dash = true) =>
+    cfg.currency === "INR"
+      ? `₹${fmtAmt(n)}${dash ? "/-" : ""}`
+      : `${cfg.symbol}${fmtAmt(n)}`;
+
+  /* ---- effects ---- */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Detect the visitor's country + timezone from their IP
+  useEffect(() => {
+    let cancelled = false;
+    detectLocation().then((loc) => {
+      if (cancelled || !loc) return;
+      setDetected(loc);
+      if (!userPickedCountry.current) setCountry(loc.key);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Get live exchange rates
+  useEffect(() => {
+    let cancelled = false;
+    fetchLiveRates().then((r) => {
+      if (!cancelled && r) setRates(r);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* ---- handlers ---- */
   const handleSlotSelect = (date, slot) => {
     setSelectedDate(date);
     setSelectedSlot(slot);
@@ -329,7 +532,8 @@ const Booking = () => {
     });
   };
 
-  const getBookingTimeStr = () => selectedSlot?.label || "";
+  const getBookingTimeStr = () =>
+    selectedSlot ? `${selectedSlot.label} (${cfg.name} time, ${tzLabel})` : "";
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -358,8 +562,8 @@ const Booking = () => {
 
     const options = {
       key: "rzp_live_SlWNuGVbsl0XQU",
-      amount: finalPrice * 100,
-      currency: "INR",
+      amount: Math.round(chargeAmount * 100),
+      currency: chargeCurrency,
       name: "Acharya Seemaa Singh",
       description: `${durationMinutes} Min Consultation`,
       image: bookingpic2,
@@ -370,12 +574,13 @@ const Booking = () => {
       prefill: {
         name: form.current.user_name.value,
         email: form.current.user_email.value,
-        contact: form.current.user_phone.value,
+        contact: `${cfg.code}${form.current.user_phone.value}`,
       },
       notes: {
         address: "Consultation Booking",
         date: getBookingDateStr(),
         time: getBookingTimeStr(),
+        country: cfg.name,
       },
       theme: {
         color: "#7A1E1E",
@@ -502,7 +707,7 @@ const Booking = () => {
                   <span
                     className={`font-semibold ${isMobile ? "text-sm" : "text-lg"}`}
                   >
-                    ₹{basePrice}/-
+                    {money(basePrice)}
                   </span>
                   <button
                     className="bg-[#7A1E1E] text-white px-4 py-1.5 rounded-lg hover:bg-[#5e1515] cursor-pointer"
@@ -532,23 +737,23 @@ const Booking = () => {
                   >
                     Book Your Appointment
                   </h3>
-                  <div className="text-right">
+                  <div className="text-right whitespace-nowrap">
                     {couponApplied ? (
                       <div>
                         <span className="line-through text-gray-400 text-sm">
-                          ₹{basePrice}
+                          {money(basePrice, false)}
                         </span>
                         <span
                           className={`font-semibold text-[#7A1E1E] ml-1 ${isMobile ? "text-sm" : "text-lg"}`}
                         >
-                          ₹{finalPrice}/-
+                          {money(finalPrice)}
                         </span>
                       </div>
                     ) : (
                       <span
                         className={`font-semibold text-[#7A1E1E] ${isMobile ? "text-sm" : "text-lg"}`}
                       >
-                        ₹{basePrice}/-
+                        {money(basePrice)}
                       </span>
                     )}
                   </div>
@@ -566,7 +771,12 @@ const Booking = () => {
                   <input
                     type="hidden"
                     name="booking_price"
-                    value={finalPrice}
+                    value={chargeAmount}
+                  />
+                  <input
+                    type="hidden"
+                    name="booking_currency"
+                    value={chargeCurrency}
                   />
                   <input
                     type="hidden"
@@ -578,17 +788,9 @@ const Booking = () => {
                     name="booking_time"
                     value={getBookingTimeStr()}
                   />
-                  <input
-                    type="hidden"
-                    name="country_code"
-                    value={COUNTRY_CONFIG[country].code}
-                  />
-                  <input type="hidden" name="client_country" value={country} />
-                  <input
-                    type="hidden"
-                    name="client_timezone"
-                    value={COUNTRY_CONFIG[country].tz}
-                  />
+                  <input type="hidden" name="country_code" value={cfg.code} />
+                  <input type="hidden" name="client_country" value={cfg.name} />
+                  <input type="hidden" name="client_timezone" value={tz} />
                   <input
                     type="hidden"
                     name="coupon_applied"
@@ -630,6 +832,7 @@ const Booking = () => {
                         className="country-select"
                         value={country}
                         onChange={(e) => {
+                          userPickedCountry.current = true;
                           setCountry(e.target.value);
                           setSelectedDate(null);
                           setSelectedSlot(null);
@@ -648,21 +851,22 @@ const Booking = () => {
                       </p>
                       <div className="flex rounded-[10px] overflow-hidden">
                         <div className="bg-[#5e1515] text-white text-[0.88rem] font-semibold px-3 flex items-center whitespace-nowrap shrink-0 border-r border-white/20">
-                          {COUNTRY_CONFIG[country].code}
+                          {cfg.code || "🌐"}
                         </div>
                         <input
                           type="tel"
                           name="user_phone"
-                          placeholder="Number"
+                          placeholder={cfg.code ? "Number" : "With country code"}
                           required
-                          className="flex-1 bg-[#7A1E1E] text-white border-none outline-none px-3 py-3 text-[0.9rem] placeholder-white/70"
+                          className="flex-1 min-w-0 bg-[#7A1E1E] text-white border-none outline-none px-3 py-3 text-[0.9rem] placeholder-white/70"
                         />
                       </div>
                     </div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-[#7A1E1E] mb-1.5 uppercase tracking-wide">
-                      Appointment Slot · {durationMinutes} Min Online Session
+                      Appointment Slot · {cfg.name} Time · {durationMinutes} Min
+                      Online Session
                     </p>
                     <button
                       type="button"
@@ -672,6 +876,9 @@ const Booking = () => {
                       <span>{slotButtonLabel}</span>
                       <span>🗓</span>
                     </button>
+                    <p className="text-[0.72rem] text-gray-500 mt-1">
+                      All slot times are in {timeName} ({tzLabel}).
+                    </p>
                   </div>
                   <textarea
                     name="user_message"
@@ -690,8 +897,8 @@ const Booking = () => {
                             {appliedCouponCode} applied!
                           </span>
                           <span className="text-green-600 text-xs ml-2">
-                            −₹{discount} ({Math.round(appliedDiscount * 100)}%
-                            off)
+                            −{money(discount, false)} (
+                            {Math.round(appliedDiscount * 100)}% off)
                           </span>
                         </div>
                         <button
@@ -727,18 +934,24 @@ const Booking = () => {
                       <p className="text-red-500 text-xs mt-1">{couponError}</p>
                     )}
                   </div>
+                  {!payLocal && (
+                    <p className="text-xs text-gray-500 -mt-2">
+                      Your card will be charged ₹{fmtAmt(finalPriceInr)} (INR
+                      equivalent of {money(finalPrice, false)}).
+                    </p>
+                  )}
                   <div className="flex items-center justify-between pt-1">
                     {couponApplied && (
                       <div className="text-sm text-gray-600">
                         <span>Total: </span>
                         <span className="line-through text-gray-400">
-                          ₹{basePrice}
+                          {money(basePrice, false)}
                         </span>
                         <span className="text-[#7A1E1E] font-bold ml-1">
-                          ₹{finalPrice}
+                          {money(finalPrice, false)}
                         </span>
                         <span className="text-green-600 text-xs ml-1">
-                          (saved ₹{discount})
+                          (saved {money(discount, false)})
                         </span>
                       </div>
                     )}
@@ -767,7 +980,8 @@ const Booking = () => {
           <div className="slot-card">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-base font-bold text-[#7A1E1E]">
-                📅 Select Your Slot ({country} Time · {durationMinutes} Min)
+                📅 Select Your Slot ({cfg.name} Time · {tzLabel} ·{" "}
+                {durationMinutes} Min)
               </h4>
               <button
                 className="bg-transparent border-none text-[1.4rem] text-[#7A1E1E] cursor-pointer leading-none"
@@ -777,6 +991,7 @@ const Booking = () => {
               </button>
             </div>
             <SlotPicker
+              key={`${tz}-${durationMinutes}`}
               tz={tz}
               onSelect={handleSlotSelect}
               selectedDate={selectedDate}

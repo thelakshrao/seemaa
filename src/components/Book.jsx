@@ -92,9 +92,8 @@ const Book = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-14 px-3 sm:px-4 overflow-hidden bg-gradient-to-b from-[#7A1E1E] via-[#5c1616] to-[#FFFDF8]"
+      className="relative w-full py-14 px-3 sm:px-4 overflow-hidden bg-linear-to-b from-[#7A1E1E] via-[#5c1616] to-[#FFFDF8]"
     >
-      {/* Decorative background pattern */}
       <div
         className="absolute inset-0 opacity-[0.07] pointer-events-none"
         style={{
@@ -139,8 +138,7 @@ const Book = () => {
           </p>
         </div>
 
-        {/* Right: Smaller Video */}
-        <div className="w-full max-w-[220px] sm:max-w-[260px] md:max-w-[280px] flex-shrink-0">
+        <div className="w-full max-w-55 sm:max-w-65 md:max-w-70 shrink-0">
           <div className="relative rounded-2xl overflow-hidden shadow-[0_0_0_4px_rgba(255,215,0,0.25)] border border-[#FFD700]/40">
             <video
               ref={videoRef}
