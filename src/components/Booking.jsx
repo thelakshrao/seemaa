@@ -5,13 +5,13 @@ import bookingpic2 from "../img/bookingpic2.png";
 const PAY_IN_LOCAL_CURRENCY = true;
 
 const BASE_PRICES_INR = { 30: 5100, 60: 7000, 90: 11000 };
+const BASE_PRICES_CAD = { 30: 150, 60: 200, 90: 250 };
 
 const BOOKED_KEY = "booked_slots_seemaa";
 const RATES_KEY = "inr_rates_seemaa";
-const RATES_TTL_MS = 6 * 60 * 60 * 1000; 
+const RATES_TTL_MS = 6 * 60 * 60 * 1000;
 const COUPON_CODE2 = "DIVIYAVEDIC";
 const COUPON_DISCOUNT2 = 0.1;
-
 
 const COUNTRY_CONFIG = {
   India: { name: "India", tz: "Asia/Kolkata", code: "+91", currency: "INR", symbol: "₹", label: "India (+91)" },
@@ -46,10 +46,13 @@ const ceilTo5 = (n) => Math.ceil(n / 5 - 1e-9) * 5;
 const round2 = (n) => Math.round(n * 100) / 100;
 const fmtAmt = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
 
-function getLocalPrice(inrPrice, currency, rates) {
-  if (currency === "INR") return inrPrice;
-  const rate = rates[currency] ?? FALLBACK_RATES[currency];
-  return ceilTo5(inrPrice * rate);
+function getLocalPrice(duration, currency, rates) {
+  if (currency === "INR") return BASE_PRICES_INR[duration];
+  if (currency === "CAD") return BASE_PRICES_CAD[duration];
+  const perCad =
+    (rates[currency] ?? FALLBACK_RATES[currency]) /
+    (rates.CAD ?? FALLBACK_RATES.CAD);
+  return ceilTo5(BASE_PRICES_CAD[duration] * perCad);
 }
 
 function readCachedRates(onlyFresh = false) {
@@ -407,10 +410,6 @@ function SlotPicker({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  BOOKING                                                            */
-/* ------------------------------------------------------------------ */
-
 const Booking = () => {
   const form = useRef();
   const userPickedCountry = useRef(false);
@@ -419,6 +418,7 @@ const Booking = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isSending, setIsSending] = useState(false);
   const [showSlotPicker, setShowSlotPicker] = useState(false);
+  const [showLongNote, setShowLongNote] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [country, setCountry] = useState("India");
@@ -429,17 +429,20 @@ const Booking = () => {
   const [couponError, setCouponError] = useState("");
   const [appliedCouponCode, setAppliedCouponCode] = useState("");
 
-  /* ---- country, timezone, currency ---- */
   const cfg = COUNTRY_CONFIG[country];
   const tz =
     detected && detected.key === country && detected.tz ? detected.tz : cfg.tz;
   const tzLabel = tzAbbr(tz);
   const timeName = `${cfg.name} time`;
 
-  /* ---- prices ---- */
   const durationMinutes = duration === "30" ? 30 : duration === "60" ? 60 : 90;
-  const basePriceInr = BASE_PRICES_INR[duration];
-  const basePrice = getLocalPrice(basePriceInr, cfg.currency, rates);
+  const basePrice = getLocalPrice(duration, cfg.currency, rates);
+  const basePriceInr =
+    cfg.currency === "INR"
+      ? BASE_PRICES_INR[duration]
+      : Math.round(
+          basePrice / (rates[cfg.currency] ?? FALLBACK_RATES[cfg.currency]),
+        );
   const appliedDiscount =
     appliedCouponCode === COUPON_CODE2 ? COUPON_DISCOUNT2 : 0;
 
@@ -465,14 +468,12 @@ const Booking = () => {
       ? `₹${fmtAmt(n)}${dash ? "/-" : ""}`
       : `${cfg.symbol}${fmtAmt(n)}`;
 
-  /* ---- effects ---- */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Detect the visitor's country + timezone from their IP
   useEffect(() => {
     let cancelled = false;
     detectLocation().then((loc) => {
@@ -485,7 +486,6 @@ const Booking = () => {
     };
   }, []);
 
-  // Get live exchange rates
   useEffect(() => {
     let cancelled = false;
     fetchLiveRates().then((r) => {
@@ -496,7 +496,6 @@ const Booking = () => {
     };
   }, []);
 
-  /* ---- handlers ---- */
   const handleSlotSelect = (date, slot) => {
     setSelectedDate(date);
     setSelectedSlot(slot);
@@ -689,6 +688,7 @@ const Booking = () => {
                         key={t}
                         onClick={() => {
                           setDuration(t);
+                          if (t === "90") setShowLongNote(true);
                           setSelectedDate(null);
                           setSelectedSlot(null);
                         }}
@@ -702,6 +702,12 @@ const Booking = () => {
                       </button>
                     ))}
                   </div>
+                  {duration === "90" && (
+                    <p className="mt-2 text-xs font-semibold text-red-600">
+                      Note: the 1+ Hour session lasts between 1 hour and 1 hour
+                      30 minutes, and never more than 90 minutes.
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center justify-between mt-auto">
                   <span
@@ -879,6 +885,12 @@ const Booking = () => {
                     <p className="text-[0.72rem] text-gray-500 mt-1">
                       All slot times are in {timeName} ({tzLabel}).
                     </p>
+                    {duration === "90" && (
+                      <p className="text-[0.72rem] font-semibold text-red-600 mt-1">
+                        Note: the 1+ Hour session lasts between 1 hour and 1
+                        hour 30 minutes, never more than 90 minutes.
+                      </p>
+                    )}
                   </div>
                   <textarea
                     name="user_message"
@@ -970,6 +982,30 @@ const Booking = () => {
         </div>
       </section>
       <hr className="bg-[#7A1E1E] w-full h-0.5" />
+      {showLongNote && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowLongNote(false);
+          }}
+        >
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-xl border border-[#E7C9A5]">
+            <h4 className="font-serif text-lg text-[#7A1E1E] mb-2">
+              About the 1+ Hour session
+            </h4>
+            <p className="text-sm text-red-600 font-semibold leading-relaxed">
+              This session lasts between 1 hour and 1 hour 30 minutes. It will
+              never be longer than 90 minutes.
+            </p>
+            <button
+              onClick={() => setShowLongNote(false)}
+              className="mt-5 bg-[#7A1E1E] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#5e1515] cursor-pointer"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
       {showSlotPicker && (
         <div
           className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
