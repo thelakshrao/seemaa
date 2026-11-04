@@ -1,5 +1,14 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/servicebrief",
+      "has": [{ "type": "query", "key": "name", "value": "(?<name>.+)" }],
+      "destination": "/services/:name",
+      "permanent": true
+    },
+    { "source": "/servicebrief", "destination": "/", "permanent": true },
+    { "source": "/horoscopebrief", "destination": "/horoscope", "permanent": true },
+    { "source": "/cunsultation", "destination": "/consultation", "permanent": true }
   ]
 }

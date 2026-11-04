@@ -21,11 +21,9 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Contact Us */}
           <div>
             <h4 className="font-semibold mb-3">Contact Us</h4>
 
-            {/* Canada phone + WhatsApp icon */}
             <div className="mt-2 flex items-center gap-2 text-xs text-white/80">
               <a href="tel:+12362589866" className="hover:text-white">
                 +1 236-258-9866
@@ -48,7 +46,6 @@ const Footer = () => {
               </a>
             </div>
 
-            {/* Email */}
             <p className="mt-2 text-xs text-white/80">
               <a
                 href="mailto:Info@seemaaastrologer.com"
@@ -58,7 +55,6 @@ const Footer = () => {
               </a>
             </p>
 
-            {/* Canada office address -> opens Google Maps */}
             <div className="mt-3 text-xs text-white/80">
               <p className="font-semibold text-white mb-1">Office (Canada)</p>
               <a
@@ -76,13 +72,12 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Services */}
           <div>
             <h4 className="font-semibold mb-3">Services</h4>
             <ul className="space-y-2 text-xs text-white/80">
               <li>
                 <Link
-                  to="/servicebrief?name=vedic-astrology"
+                  to="/services/vedic-astrology"
                   className="hover:text-white"
                 >
                   Vedic Astrology
@@ -90,7 +85,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/servicebrief?name=vedic-vastu"
+                  to="/services/vedic-vastu"
                   className="hover:text-white"
                 >
                   Vastu
@@ -98,7 +93,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/servicebrief?name=transits-of-the-month"
+                  to="/services/transits-of-the-month"
                   className="hover:text-white"
                 >
                   Transits of the Month
@@ -106,7 +101,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/servicebrief?name=astro-numerology"
+                  to="/services/astro-numerology"
                   className="hover:text-white"
                 >
                   Numerology
@@ -115,34 +110,32 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Links */}
           <div>
             <h4 className="font-semibold mb-3">Links</h4>
             <ul className="space-y-2 text-xs text-white/80">
               <li>
-                <a href="/about" className="hover:text-white">
+                <Link to="/about" className="hover:text-white">
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/cunsultation" className="hover:text-white">
+                <Link to="/consultation" className="hover:text-white">
                   Appointment
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/horoscopebrief" className="hover:text-white">
+                <Link to="/horoscope" className="hover:text-white">
                   Horoscope
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/contact" className="hover:text-white">
+                <Link to="/contact" className="hover:text-white">
                   Contact us
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Policy */}
           <div>
             <h4 className="font-semibold mb-3">Policy</h4>
             <ul className="space-y-2 text-xs text-white/80">

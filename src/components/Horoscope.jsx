@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import aries from "../img/aries.webp";
 import taurus from "../img/taurus.webp";
 import gemini from "../img/gemini.webp";
@@ -29,12 +29,6 @@ const signs = [
 ];
 
 const Horoscope = () => {
-  const navigate = useNavigate();
-
-  const handleClick = (sign) => {
-    navigate("/horoscopebrief", { state: { selectedSign: sign.name } });
-  };
-
   return (
     <section className="w-full py-14 px-4 bg-[#FFF9F2]">
       <h2 className="text-center text-3xl md:text-4xl font-serif text-[#7A1E1E] mb-4">
@@ -48,10 +42,10 @@ const Horoscope = () => {
 
       <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-y-10 gap-x-6">
         {signs.map((sign, index) => (
-          <div
+          <Link
             key={index}
+            to={`/horoscope/${sign.name.toLowerCase()}`}
             className="flex flex-col items-center cursor-pointer group"
-            onClick={() => handleClick(sign)}
           >
             <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
               <img
@@ -65,7 +59,7 @@ const Horoscope = () => {
             <p className="mt-3 text-sm font-serif font-semibold tracking-wide text-[#7A1E1E]">
               {sign.name}
             </p>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

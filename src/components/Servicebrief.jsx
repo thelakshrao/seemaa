@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Bookcunsultation from "./Booking";
 import Footer from "./Footer";
+import NotFound from "./NotFound";
 import seemaapic1 from "../img/seemaapic1.png";
 import {
   FaHeart,
@@ -67,19 +68,17 @@ const servicesData = {
 };
 
 export default function ServiceBrief() {
-  const location = useLocation();
+  const { slug: serviceName } = useParams();
   const navigate = useNavigate();
-  const params = new URLSearchParams(location.search);
-  const serviceName = params.get("name");
 
   const service = servicesData[serviceName];
 
   useEffect(() => {
-    if (service) window.scrollTo({ top: 0, behavior: "smooth" });
+    if (service) window.scrollTo({ top: 0 });
   }, [serviceName, service]);
 
   if (!service) {
-    return <div className="p-10 text-center text-red-600 text-xl">Service not found.</div>;
+    return <NotFound />;
   }
 
   return (
@@ -95,7 +94,7 @@ export default function ServiceBrief() {
           <h1 className="text-2xl md:text-4xl font-bold font-serif text-[#7A1E1E] text-center mb-4">{service.title}</h1>
           <p className="text-gray-700 text-sm md:text-lg leading-relaxed">{service.description}</p>
           <button
-            onClick={() => navigate("/cunsultation")}
+            onClick={() => navigate("/consultation")}
             className="mt-6 bg-[#7A1E1E] text-[#F2EDE8] px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold hover:bg-[#5c1515] transition-colors cursor-pointer"
           >
             Book Now
@@ -154,7 +153,7 @@ export default function ServiceBrief() {
               <h3 className="text-lg md:text-xl font-serif  font-semibold text-[#7A1E1E] mb-2">{item.title}</h3>
               <p className="text-gray-700 text-xs md:text-sm">{item.description}</p>
               <button
-                onClick={() => navigate("/cunsultation")}
+                onClick={() => navigate("/consultation")}
                 className="mt-4 bg-[#7A1E1E] text-[#F2EDE8] font-serif text-center px-4 md:px-6 py-2 rounded-full font-semibold hover:bg-[#5c1515] transition-colors cursor-pointer"
               >
                 Book Now

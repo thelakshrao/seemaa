@@ -52,8 +52,13 @@ const Review = () => {
   const [animate, setAnimate] = useState(false);
 
   const [testimonials, setTestimonials] = useState(() => {
-    const saved = localStorage.getItem("testimonials");
-    return saved ? JSON.parse(saved) : defaultTestimonials;
+    if (typeof window === "undefined") return defaultTestimonials; // server render
+    try {
+      const saved = localStorage.getItem("testimonials");
+      return saved ? JSON.parse(saved) : defaultTestimonials;
+    } catch {
+      return defaultTestimonials;
+    }
   });
 
   const [showForm, setShowForm] = useState(false);

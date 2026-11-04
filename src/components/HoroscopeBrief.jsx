@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import SeemaaPic from "../img/seemaapic2.webp";
 import aries from "../img/aries.webp";
 import taurus from "../img/taurus.webp";
@@ -119,14 +119,11 @@ const signs = [
 ];
 
 const HoroscopeBrief = () => {
-  const location = useLocation();
-  const [selected, setSelected] = useState("ARIES");
-
-  useEffect(() => {
-    if (location.state?.selectedSign) {
-      setSelected(location.state.selectedSign);
-    }
-  }, [location.state]);
+  // The sign now comes from the URL (/horoscope/leo), so every sign has its own page.
+  const { sign: signParam } = useParams();
+  const upper = (signParam || "aries").toUpperCase();
+  const selected = horoscopeBriefs[upper] ? upper : "ARIES";
+  const displayName = selected.charAt(0) + selected.slice(1).toLowerCase();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -147,9 +144,9 @@ const HoroscopeBrief = () => {
           </div>
 
           <div className="flex-1 text-[#7A1E1E] flex flex-col justify-center text-center md:text-left">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl text-center font-serif font-bold mb-3">
-              {selected}
-            </h2>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl text-center font-serif font-bold mb-3">
+              {displayName} Zodiac Sign: Personality &amp; Traits
+            </h1>
             <p className="text-sm sm:text-base md:text-lg md:text-justify text-center leading-6 sm:leading-7 md:leading-8">
               {horoscopeBriefs[selected]}
             </p>
@@ -157,9 +154,9 @@ const HoroscopeBrief = () => {
         </div>
 
         <div className="text-center mb-10 mt-20 animate-slide-up">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#7A1E1E] font-bold mb-3">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#7A1E1E] font-bold mb-3">
             Discover Your Zodiac Sign
-          </h1>
+          </h2>
           <p className="text-[#7A1E1E]/80 text-sm sm:text-base md:text-lg">
             Click on a sign to know about your personality, traits, and life
             predictions.
@@ -168,14 +165,14 @@ const HoroscopeBrief = () => {
         
         <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 sm:gap-8 animate-slide-up">
           {signs.map((sign) => (
-            <div
+            <Link
               key={sign.name}
+              to={`/horoscope/${sign.name.toLowerCase()}`}
               className={`flex flex-col items-center cursor-pointer p-3 rounded-lg transition-transform duration-300 ${
                 selected === sign.name
                   ? "bg-[#F4C430]/30 shadow-lg scale-105"
                   : "bg-white shadow-md hover:scale-105"
               }`}
-              onClick={() => setSelected(sign.name)}
             >
               <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center shadow-inner overflow-hidden p-2">
                 <img
@@ -188,7 +185,7 @@ const HoroscopeBrief = () => {
               <p className="mt-2 text-xs sm:text-sm md:text-base font-serif font-semibold text-[#7A1E1E] tracking-wide text-center">
                 {sign.name}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
 
