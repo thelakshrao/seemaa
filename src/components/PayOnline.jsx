@@ -12,7 +12,7 @@ const loadRazorpayScript = () => {
 
 const PayOnline = () => {
   const [open, setOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 768);
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", dob: "", amount: ""
   });

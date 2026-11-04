@@ -48,13 +48,13 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const generateServiceUrl = (title) =>
-    `/servicebrief?name=${title.toLowerCase().replace(/\s+/g, "-")}`;
+    `/services/${title.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (
     <>
       <nav className="flex items-center justify-between px-6 py-4 bg-[#7A1E1E] shadow-md fixed w-full top-0 left-0 z-50">
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="Logo" className="h-12 sm:h-13" loading="lazy"/>
+          <img src={logo} alt="Acharya Seemaa Singh logo" className="h-12 sm:h-13" loading="lazy"/>
         </Link>
 
         <div className="hidden md:flex space-x-6 text-lg gap-4 items-center">
@@ -91,8 +91,7 @@ const Navbar = () => {
               {horoscopes.map((h) => (
                 <Link
                   key={h.name}
-                  to="/horoscopebrief"
-                  state={{ selectedSign: h.name }}
+                  to={`/horoscope/${h.name.toLowerCase()}`}
                   className="flex items-center gap-2 px-4 py-2 hover:bg-[#F4C430]/20 transition-all duration-200"
                 >
                   <img
@@ -114,7 +113,7 @@ const Navbar = () => {
         </div>
 
         <button
-          onClick={() => navigate("/cunsultation")}
+          onClick={() => navigate("/consultation")}
           className="hidden md:block bg-[#F4C430] text-[#7A1E1E] w-42 py-2 rounded-full font-serif font-semibold cursor-pointer"
         >
           Book Consultation
@@ -180,8 +179,7 @@ const Navbar = () => {
                 {horoscopes.map((h) => (
                   <Link
                     key={h.name}
-                    to="/horoscopebrief"
-                    state={{ selectedSign: h.name }}
+                    to={`/horoscope/${h.name.toLowerCase()}`}
                     className="flex items-center gap-2 text-[#7A1E1E] px-3 py-2 hover:bg-[#F4C430]/30 rounded-lg"
                     onClick={() => setOpen(false)}
                   >
@@ -207,7 +205,7 @@ const Navbar = () => {
 
           <button
             onClick={() => {
-              navigate("/cunsultation");
+              navigate("/consultation");
               setOpen(false);
             }}
             className="bg-[#F4C430] text-[#7A1E1E] w-48 py-2 rounded-full font-serif font-semibold"

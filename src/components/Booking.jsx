@@ -415,7 +415,7 @@ const Booking = () => {
   const userPickedCountry = useRef(false);
   const [duration, setDuration] = useState("30");
   const [step, setStep] = useState("price");
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth < 768);
   const [isSending, setIsSending] = useState(false);
   const [showSlotPicker, setShowSlotPicker] = useState(false);
   const [showLongNote, setShowLongNote] = useState(false);

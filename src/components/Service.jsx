@@ -102,7 +102,7 @@ const Service = () => {
                 <p className="text-gray-700 text-sm">{item.desc}</p>
 
                 <div className="mt-4">
-                  <Link to={`/servicebrief?name=${urlName}`}>
+                  <Link to={`/services/${urlName}`}>
                     <button className="bg-[#7A1E1E] text-[#F2EDE8] px-6 py-2 rounded-full font-semibold hover:bg-[#5c1515] transition-colors cursor-pointer">
                       Consult Now
                     </button>
