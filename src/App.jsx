@@ -2,17 +2,18 @@ import { Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import PayOnline from "./components/PayOnline";
 import Seo from "./components/Seo";
-// Static imports (not lazy) so the server can render every page to HTML.
 import Home from "./components/Home";
 import About from "./components/About";
-import Servicebrief from "./components/Servicebrief";
+import ServiceBrief from "./components/Servicebrief";
 import HoroscopeBrief from "./components/HoroscopeBrief";
 import BookConsultation from "./components/BookConsultation";
 import ContactUs from "./components/ContactUs";
 import NotFound from "./components/NotFound";
+import ManglikDosha from "./components/ManglikDosha";
+import TarotReading from "./components/TarotReading";
+import Books from "./components/Books";
+import Press from "./components/Press";
 
-// The <Router> is added in main.jsx (browser) and entry-server.jsx (build-time
-// prerender), so the same routes are used in both places.
 function App() {
   return (
     <>
@@ -22,7 +23,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/services/:slug" element={<Servicebrief />} />
+        <Route path="/services/manglik-dosha" element={<ManglikDosha />} />
+        <Route path="/services/tarot-reading" element={<TarotReading />} />
+        <Route path="/services/:slug" element={<ServiceBrief />} />
+        <Route path="/books" element={<Books />} />
+        <Route path="/press" element={<Press />} />
         <Route path="/horoscope" element={<HoroscopeBrief />} />
         <Route path="/horoscope/:sign" element={<HoroscopeBrief />} />
         <Route path="/consultation" element={<BookConsultation />} />

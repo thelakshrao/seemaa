@@ -4,6 +4,7 @@ import bookImg3 from "../img/book3.webp";
 import bookImg4 from "../img/book4.webp";
 import tarotVideo from "../assets/vid/Tarotvid.mp4";
 import { Volume2, VolumeX, Play } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const books = [
   {
@@ -92,8 +93,9 @@ const Book = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-14 px-3 sm:px-4 overflow-hidden bg-linear-to-b from-[#7A1E1E] via-[#5c1616] to-[#FFFDF8]"
+      className="relative w-full py-14 px-3 sm:px-4 overflow-hidden bg-gradient-to-b from-[#7A1E1E] via-[#5c1616] to-[#FFFDF8]"
     >
+      {/* Decorative background pattern */}
       <div
         className="absolute inset-0 opacity-[0.07] pointer-events-none"
         style={{
@@ -110,6 +112,11 @@ const Book = () => {
       </h2>
       <p className="relative text-center text-[#f5e6c8] text-sm sm:text-base mb-10 z-10 max-w-xl mx-auto">
         Words of wisdom, woven with the wisdom of the stars
+      </p>
+      <p className="relative text-center mb-10 z-10 -mt-6">
+        <Link to="/books" className="text-[#FFD700] underline font-semibold hover:text-white">
+          See all books →
+        </Link>
       </p>
 
       {/* Video + Text Section */}
@@ -138,7 +145,8 @@ const Book = () => {
           </p>
         </div>
 
-        <div className="w-full max-w-55 sm:max-w-65 md:max-w-70 shrink-0">
+        {/* Right: Smaller Video */}
+        <div className="w-full max-w-[220px] sm:max-w-[260px] md:max-w-[280px] flex-shrink-0">
           <div className="relative rounded-2xl overflow-hidden shadow-[0_0_0_4px_rgba(255,215,0,0.25)] border border-[#FFD700]/40">
             <video
               ref={videoRef}

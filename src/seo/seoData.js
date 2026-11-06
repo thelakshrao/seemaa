@@ -1,3 +1,5 @@
+import { manglik, tarot, books } from "./pageContent.js";
+import { serviceFaqs } from "./serviceFaqs.js";
 
 export const SITE_URL = "https://www.seemaaastrologer.com";
 export const SITE_NAME = "Acharya Seemaa Singh";
@@ -74,6 +76,25 @@ export const signs = [
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
+const faqLd = (faqs) => ({
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+});
+
+const serviceLd = (name, description, path) => ({
+  "@type": "Service",
+  name,
+  description,
+  url: `${SITE_URL}${path}`,
+  serviceType: name,
+  provider: { "@id": `${SITE_URL}/#seemaa` },
+  areaServed: ["India", "Canada", "Worldwide (online)"],
+});
+
 const personLd = {
   "@type": "Person",
   "@id": `${SITE_URL}/#seemaa`,
@@ -107,15 +128,15 @@ const graph = (...nodes) => ({ "@context": "https://schema.org", "@graph": nodes
 
 export const pages = {
   "/": {
-    title: "Acharya Seemaa Singh | Vedic Astrologer, Tarot, Numerology & Vastu",
+    title: "Seema Singh | Acharya Seemaa Singh, Vedic Astrologer & Tarot",
     description:
-      "Consult Acharya Seemaa Singh, a Vedic astrologer with 20+ years of experience serving clients in India and Canada. Kundli, tarot, numerology, Vastu and more.",
+      "Consult Seema Singh (Acharya Seemaa Singh), Vedic astrologer with 20+ years of experience in India and Canada. Kundli, tarot, numerology and Vastu.",
     jsonLd: graph(websiteLd, personLd),
   },
   "/about": {
-    title: "About Acharya Seemaa Singh | Astrologer, Author & Teacher",
+    title: "About Seema Singh (Acharya Seemaa Singh) | Astrologer & Author",
     description:
-      "Meet Acharya Seemaa Singh: Vedic astrologer, tarot expert, author of Tarot for Beginners, with over two decades of experience guiding clients worldwide.",
+      "Meet Seema Singh, also written Seemaa Singh: Vedic astrologer, tarot expert and author of Tarot for Beginners, with over two decades of experience.",
     jsonLd: graph(
       {
         "@type": "AboutPage",
@@ -144,20 +165,14 @@ export const pages = {
 };
 
 services.forEach((s) => {
-  const url = `${SITE_URL}/services/${s.slug}`;
-  pages[`/services/${s.slug}`] = {
+  const path = `/services/${s.slug}`;
+  const faqs = serviceFaqs[s.slug] || [];
+  pages[path] = {
     title: s.seoTitle,
     description: s.description,
     jsonLd: graph(
-      {
-        "@type": "Service",
-        name: s.title,
-        description: s.description,
-        url,
-        serviceType: s.title,
-        provider: { "@id": `${SITE_URL}/#seemaa` },
-        areaServed: ["India", "Canada", "Worldwide (online)"],
-      },
+      serviceLd(s.title, s.description, path),
+      ...(faqs.length ? [faqLd(faqs)] : []),
       personLd
     ),
   };
@@ -169,6 +184,54 @@ signs.forEach((sign) => {
     description: `${cap(sign)} personality, strengths and traits explained by Vedic astrologer Acharya Seemaa Singh. Book a personal horoscope reading.`,
   };
 });
+
+const manglikDesc =
+  "Check Manglik (Mangal) dosha in your kundli with Vedic astrologer Acharya Seemaa Singh. Understand Mars placement, cancellation, marriage matching and remedies.";
+pages["/services/manglik-dosha"] = {
+  title: "Manglik Dosha Check Online & Consultation | Acharya Seemaa Singh",
+  description: manglikDesc,
+  jsonLd: graph(
+    serviceLd("Manglik Dosha Check & Consultation", manglikDesc, "/services/manglik-dosha"),
+    faqLd(manglik.faqs),
+    personLd
+  ),
+};
+
+const tarotDesc =
+  "Book an online tarot reading with Acharya Seemaa Singh, author of Tarot for Beginners. Guidance on career, love, finances and health.";
+pages["/services/tarot-reading"] = {
+  title: "Tarot Card Reading Online | Acharya Seemaa Singh (Seema Singh)",
+  description: tarotDesc,
+  jsonLd: graph(
+    serviceLd("Tarot Card Reading", tarotDesc, "/services/tarot-reading"),
+    faqLd(tarot.faqs),
+    personLd
+  ),
+};
+
+const tarotBook = books.find((b) => b.key === "tarot");
+pages["/books"] = {
+  title: "Books by Acharya Seemaa Singh | Tarot for Beginners & More",
+  description:
+    "Books by Seema Singh (Acharya Seemaa Singh): Tarot for Beginners, Healing Through Mantra and The Rock That Was Not.",
+  jsonLd: graph(
+    {
+      "@type": "Book",
+      name: tarotBook.title,
+      description: tarotBook.description,
+      isbn: tarotBook.isbn.replace(/-/g, ""),
+      author: { "@id": `${SITE_URL}/#seemaa` },
+      publisher: { "@type": "Organization", name: tarotBook.publisher },
+    },
+    personLd
+  ),
+};
+
+pages["/press"] = {
+  title: "Acharya Seemaa Singh in the Media | TV, Radio & Press Features",
+  description:
+    "Media outlets in India and Canada that have featured Seema Singh (Acharya Seemaa Singh), including OMNI Television, Spice Radio, PTC News and Dainik Bhaskar.",
+};
 
 export const notFoundSeo = {
   title: "Page not found | Acharya Seemaa Singh",
