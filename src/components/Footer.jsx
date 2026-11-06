@@ -1,9 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../img/logoastrologer.png";
+import { policies, POLICY_UPDATED } from "../seo/policyContent";
 
 const Footer = () => {
   const [openPolicy, setOpenPolicy] = useState(null);
+  const policy = openPolicy ? policies[openPolicy] : null;
+
+  useEffect(() => {
+    if (!openPolicy) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpenPolicy(null);
+    };
+    window.addEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [openPolicy]);
+
   return (
     <footer className="w-full bg-[#7A1E1E] text-white">
       <hr className="bg-[#7A1E1E] w-full h-0.5" />
@@ -139,71 +156,96 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-3">Policy</h4>
             <ul className="space-y-2 text-xs text-white/80">
-              <li
-                className="cursor-pointer hover:text-white"
-                onClick={() => setOpenPolicy("disclaimer")}
-              >
-                Disclaimer
+              <li>
+                <button
+                  type="button"
+                  className="cursor-pointer hover:text-white"
+                  onClick={() => setOpenPolicy("disclaimer")}
+                >
+                  Disclaimer
+                </button>
               </li>
-              <li
-                className="cursor-pointer hover:text-white"
-                onClick={() => setOpenPolicy("privacy")}
-              >
-                Privacy Policy
+              <li>
+                <button
+                  type="button"
+                  className="cursor-pointer hover:text-white"
+                  onClick={() => setOpenPolicy("privacy")}
+                >
+                  Privacy Policy
+                </button>
               </li>
-              <li
-                className="cursor-pointer hover:text-white"
-                onClick={() => setOpenPolicy("payment")}
-              >
-                Pay Online
+              <li>
+                <button
+                  type="button"
+                  className="cursor-pointer hover:text-white"
+                  onClick={() => setOpenPolicy("payment")}
+                >
+                  Pay Online
+                </button>
               </li>
             </ul>
           </div>
+        </div>
 
-          {openPolicy && (
-            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-              <div className="bg-white text-black rounded-xl max-w-md w-full p-5 relative">
+        {policy && (
+          <div
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4"
+            onClick={() => setOpenPolicy(null)}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={policy.title}
+              className="bg-white text-black rounded-xl max-w-2xl w-full max-h-[85vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-4 px-5 py-4 border-b border-gray-200">
+                <div>
+                  <h3 className="font-serif font-bold text-xl text-[#7A1E1E]">
+                    {policy.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Last updated: {POLICY_UPDATED}
+                  </p>
+                </div>
                 <button
+                  type="button"
+                  aria-label="Close"
                   onClick={() => setOpenPolicy(null)}
-                  className="absolute top-3 right-3 text-gray-500 hover:text-black"
+                  className="text-gray-500 hover:text-black text-lg leading-none cursor-pointer"
                 >
                   ✕
                 </button>
+              </div>
 
-                {openPolicy === "disclaimer" && (
-                  <>
-                    <h3 className="font-semibold mb-2">Disclaimer</h3>
-                    <p className="text-sm text-gray-600">
-                      All consultations and guidance are based on personal
-                      belief and experience. Results may vary for each
-                      individual.
-                    </p>
-                  </>
-                )}
-
-                {openPolicy === "privacy" && (
-                  <>
-                    <h3 className="font-semibold mb-2">Privacy Policy</h3>
-                    <p className="text-sm text-gray-600">
-                      Your personal details are kept strictly confidential and
-                      are never shared with any third party.
-                    </p>
-                  </>
-                )}
-
-                {openPolicy === "payment" && (
-                  <>
-                    <h3 className="font-semibold mb-2">Pay Online</h3>
-                    <p className="text-sm text-gray-600">
-                      All payments are processed securely. No card or payment
-                      information is stored on our servers.
-                    </p>
-                  </>
-                )}
+              <div className="overflow-y-auto px-5 py-4 space-y-5">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {policy.intro}
+                </p>
+                {policy.sections.map((s) => (
+                  <section key={s.h}>
+                    <h4 className="font-semibold text-[#7A1E1E] mb-1">{s.h}</h4>
+                    {(s.p || []).map((text, i) => (
+                      <p
+                        key={i}
+                        className="text-sm text-gray-700 leading-relaxed mb-2"
+                      >
+                        {text}
+                      </p>
+                    ))}
+                    {s.list && (
+                      <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 leading-relaxed">
+                        {s.list.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                ))}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="border-t border-white/30 my-6"></div>
 

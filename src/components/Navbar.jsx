@@ -24,6 +24,8 @@ const services = [
   "Astro Numerology",
   "Vedic Astrology",
   "Vedic Vastu",
+  "Manglik Dosha",
+  "Tarot Reading",
 ];
 
 const horoscopes = [
@@ -106,6 +108,14 @@ const Navbar = () => {
               ))}
             </div>
           </div>
+
+          <Link to="/books" className="hidden lg:block text-[#FAF9F6] font-serif hover:text-[#F4C430]">
+            Books
+          </Link>
+
+          <Link to="/press" className="hidden lg:block text-[#FAF9F6] font-serif hover:text-[#F4C430]">
+            Press
+          </Link>
 
           <Link to="/contact" className="text-[#FAF9F6] font-serif hover:text-[#F4C430]">
             Contact Us
@@ -194,6 +204,22 @@ const Navbar = () => {
               </div>
             )}
           </div>
+
+          <Link
+            to="/books"
+            className="text-lg text-[#7A1E1E] font-serif hover:text-[#F4C430]"
+            onClick={() => setOpen(false)}
+          >
+            Books
+          </Link>
+
+          <Link
+            to="/press"
+            className="text-lg text-[#7A1E1E] font-serif hover:text-[#F4C430]"
+            onClick={() => setOpen(false)}
+          >
+            Press
+          </Link>
 
           <Link
             to="/contact"

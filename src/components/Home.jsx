@@ -149,7 +149,6 @@ const Home = () => {
               <NavArrow dir="left" onClick={prev} />
               <NavArrow dir="right" onClick={next} />
 
-              {/* Left text content */}
               <div className="relative z-20 w-1/2 px-12 pt-8 pb-8 flex flex-col justify-center min-h-90 slide-in">
                 <div className="flex items-center gap-2 mb-4">
                   <div
@@ -296,12 +295,12 @@ const Home = () => {
                       : "✦ Trusted Guidance"}
                   </span>
                 </div>
-                <h1
+                <h2
                   className="text-4xl font-serif font-bold leading-tight"
                   style={{ textShadow: "0 2px 20px rgba(0,0,0,0.5)" }}
                 >
                   {banner.title}
-                </h1>
+                </h2>
                 <p className="mt-4 text-base text-[#F2EDE8]/80 max-w-sm leading-relaxed">
                   {banner.subtitle}
                 </p>
@@ -419,9 +418,9 @@ const Home = () => {
                     style={{ background: banner.accentColor + "80" }}
                   />
                 </div>
-                <h1 className="text-2xl font-serif font-bold leading-snug text-[#F4E4C1]">
+                <h2 className="text-2xl font-serif font-bold leading-snug text-[#F4E4C1]">
                   Acharya Seemaa Singh
-                </h1>
+                </h2>
                 <p
                   className="mt-1 text-sm font-semibold"
                   style={{ color: banner.accentColor }}
@@ -523,9 +522,9 @@ const Home = () => {
                         style={{ background: banner.accentColor + "60" }}
                       />
                     </div>
-                    <h1 className="text-xl font-bold leading-snug">
+                    <h2 className="text-xl font-bold leading-snug">
                       {banner.title}
-                    </h1>
+                    </h2>
                     <p className="mt-2 text-sm text-[#F2EDE8]/80">
                       {banner.subtitle}
                     </p>
@@ -590,9 +589,9 @@ const Home = () => {
                         style={{ background: banner.accentColor + "60" }}
                       />
                     </div>
-                    <h1 className="text-xl font-bold font-serif leading-snug">
+                    <h2 className="text-xl font-bold font-serif leading-snug">
                       {banner.title}
-                    </h1>
+                    </h2>
                     <p className="mt-2 text-sm text-[#F2EDE8]/80">
                       {banner.subtitle}
                     </p>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import award1 from "../img/award1.webp";
 import award2 from "../img/award2.webp";
 import award3 from "../img/award3.webp";
@@ -7,12 +8,12 @@ import award5 from "../img/award5.webp";
 import award6 from "../img/award6.webp";
 
 const awardsData = [
-  { title: "Achievement One", content: "Short description lorem ipsum text goes here.", image: award1 },
-  { title: "Achievement Two", content: "Short description lorem ipsum text goes here.", image: award2 },
-  { title: "Achievement Three", content: "Short description lorem ipsum text goes here.", image: award3 },
-  { title: "Achievement Four", content: "Short description lorem ipsum text goes here.", image: award4 },
-  { title: "Achievement Five", content: "Short description lorem ipsum text goes here.", image: award5 },
-  { title: "Achievement Six", content: "Short description lorem ipsum text goes here.", image: award6 },
+  { title: "On the panel", content: "Acharya Seemaa Singh taking part in a panel discussion at an event.", alt: "Acharya Seemaa Singh seated on a panel at an event", image: award1 },
+  { title: "Tarot for Beginners", content: "Presenting her book Tarot for Beginners.", alt: "Acharya Seemaa Singh holding her book Tarot for Beginners", image: award2 },
+  { title: "Sharing her book", content: "With a guest and a copy of Tarot for Beginners.", alt: "Acharya Seemaa Singh with a guest and her book Tarot for Beginners", image: award3 },
+  { title: "On television", content: "Presenting an astrology segment on a television programme.", alt: "Acharya Seemaa Singh presenting astrology on television", image: award4 },
+  { title: "With a guest", content: "Photographed with a guest at an event.", alt: "Acharya Seemaa Singh with a guest at an event", image: award5 },
+  { title: "Television appearance", content: "Speaking on a television programme.", alt: "Acharya Seemaa Singh speaking on a television programme", image: award6 },
 ];
 
 const Awards = () => {
@@ -39,6 +40,11 @@ const Awards = () => {
       <h2 className="relative z-10 text-center text-2xl sm:text-3xl md:text-4xl font-serif text-[#F4C430] mb-6 sm:mb-10">
         Achievements & Celebrated Faces
       </h2>
+      <p className="relative z-10 text-center -mt-4 mb-6 sm:mb-8">
+        <Link to="/press" className="text-[#F4C430] underline font-semibold hover:text-white">
+          See where she has been featured →
+        </Link>
+      </p>
 
       <div className="relative z-10 max-w-6xl mx-auto">
         <div className="bg-white shadow-2xl rounded-3xl p-4 sm:p-6 md:p-10">
@@ -56,7 +62,7 @@ const Awards = () => {
                       ${index === i ? "grayscale-0 border-[#7A1E1E]" : "grayscale border-transparent opacity-70"}
                     `}
                   >
-                    <img src={item.image} alt="small award" className="w-full h-full object-cover"
+                    <img src={item.image} alt={item.alt} className="w-full h-full object-cover"
                     loading="lazy" />
                   </div>
                 ))}
@@ -81,7 +87,7 @@ const Awards = () => {
 
             <div className="w-full md:w-1/2 flex justify-center items-center order-1 md:order-2 mb-4 sm:mb-6 md:mb-0">
               <div className="w-40 h-40 sm:w-60 sm:h-60 md:w-80 md:h-80 rounded-full overflow-hidden shadow-2xl border-4 border-[#F4C430]">
-                <img src={current.image} alt="award" className="w-full h-full object-cover" 
+                <img src={current.image} alt={current.alt} className="w-full h-full object-cover" 
                 loading="lazy"/>
               </div>
             </div>

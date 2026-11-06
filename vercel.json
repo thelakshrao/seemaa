@@ -3,12 +3,50 @@
   "redirects": [
     {
       "source": "/servicebrief",
-      "has": [{ "type": "query", "key": "name", "value": "(?<name>.+)" }],
+      "has": [
+        {
+          "type": "query",
+          "key": "name",
+          "value": "(?<name>.+)"
+        }
+      ],
       "destination": "/services/:name",
       "permanent": true
     },
-    { "source": "/servicebrief", "destination": "/", "permanent": true },
-    { "source": "/horoscopebrief", "destination": "/horoscope", "permanent": true },
-    { "source": "/cunsultation", "destination": "/consultation", "permanent": true }
+    {
+      "source": "/servicebrief",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/horoscopebrief",
+      "destination": "/horoscope",
+      "permanent": true
+    },
+    {
+      "source": "/cunsultation",
+      "destination": "/consultation",
+      "permanent": true
+    },
+    {
+      "source": "/product-category/book",
+      "destination": "/books",
+      "permanent": true
+    },
+    {
+      "source": "/product-category/book/:path*",
+      "destination": "/books",
+      "permanent": true
+    },
+    {
+      "source": "/about-us",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/contact",
+      "permanent": true
+    }
   ]
 }

@@ -119,7 +119,7 @@ const signs = [
 ];
 
 const HoroscopeBrief = () => {
-  // The sign now comes from the URL (/horoscope/leo), so every sign has its own page.
+
   const { sign: signParam } = useParams();
   const upper = (signParam || "aries").toUpperCase();
   const selected = horoscopeBriefs[upper] ? upper : "ARIES";
