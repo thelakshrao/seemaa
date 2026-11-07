@@ -29,6 +29,16 @@
       "permanent": true
     },
     {
+      "source": "/appointment",
+      "destination": "/consultation",
+      "permanent": true
+    },
+    {
+      "source": "/index.php",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/product-category/book",
       "destination": "/books",
       "permanent": true
@@ -39,6 +49,11 @@
       "permanent": true
     },
     {
+      "source": "/product/:path*",
+      "destination": "/services/vedic-astrology",
+      "permanent": true
+    },
+    {
       "source": "/about-us",
       "destination": "/about",
       "permanent": true
@@ -46,6 +61,66 @@
     {
       "source": "/contact-us",
       "destination": "/contact",
+      "permanent": true
+    },
+    {
+      "source": "/aries-2",
+      "destination": "/horoscope/aries",
+      "permanent": true
+    },
+    {
+      "source": "/taurus-2",
+      "destination": "/horoscope/taurus",
+      "permanent": true
+    },
+    {
+      "source": "/gemini-2",
+      "destination": "/horoscope/gemini",
+      "permanent": true
+    },
+    {
+      "source": "/cancer-2",
+      "destination": "/horoscope/cancer",
+      "permanent": true
+    },
+    {
+      "source": "/leo-2",
+      "destination": "/horoscope/leo",
+      "permanent": true
+    },
+    {
+      "source": "/virgo-2",
+      "destination": "/horoscope/virgo",
+      "permanent": true
+    },
+    {
+      "source": "/libra-2",
+      "destination": "/horoscope/libra",
+      "permanent": true
+    },
+    {
+      "source": "/scorpio-2",
+      "destination": "/horoscope/scorpio",
+      "permanent": true
+    },
+    {
+      "source": "/sagittarius-2",
+      "destination": "/horoscope/sagittarius",
+      "permanent": true
+    },
+    {
+      "source": "/capricorn-2",
+      "destination": "/horoscope/capricorn",
+      "permanent": true
+    },
+    {
+      "source": "/aquarius-2",
+      "destination": "/horoscope/aquarius",
+      "permanent": true
+    },
+    {
+      "source": "/pisces-2",
+      "destination": "/horoscope/pisces",
       "permanent": true
     }
   ]
