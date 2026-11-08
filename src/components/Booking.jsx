@@ -10,8 +10,7 @@ const BASE_PRICES_CAD = { 30: 150, 60: 200, 90: 250 };
 const BOOKED_KEY = "booked_slots_seemaa";
 const RATES_KEY = "inr_rates_seemaa";
 const RATES_TTL_MS = 6 * 60 * 60 * 1000;
-const COUPON_CODE2 = "DIVIYAVEDIC";
-const COUPON_DISCOUNT2 = 0.1;
+const COUPONS = { DIVIYAVEDIC: 0.1, DIWALI2K26: 0.1 };
 
 const COUNTRY_CONFIG = {
   India: { name: "India", tz: "Asia/Kolkata", code: "+91", currency: "INR", symbol: "₹", label: "India (+91)" },
@@ -443,8 +442,7 @@ const Booking = () => {
       : Math.round(
           basePrice / (rates[cfg.currency] ?? FALLBACK_RATES[cfg.currency]),
         );
-  const appliedDiscount =
-    appliedCouponCode === COUPON_CODE2 ? COUPON_DISCOUNT2 : 0;
+  const appliedDiscount = COUPONS[appliedCouponCode] || 0;
 
   const applyDiscount = (amount, currency) =>
     currency === "INR"
@@ -504,8 +502,8 @@ const Booking = () => {
 
   const applyCoupon = () => {
     const code = couponInput.trim().toUpperCase();
-    if (code === COUPON_CODE2) {
-      setAppliedCouponCode(COUPON_CODE2);
+    if (COUPONS[code]) {
+      setAppliedCouponCode(code);
       setCouponApplied(true);
       setCouponError("");
     } else {
