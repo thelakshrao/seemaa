@@ -19,38 +19,25 @@ const GOLD = "#cbb05f";
 const CREAM = "#F4E4C1";
 const g = (a) => `${GOLD}${a}`;
 
-const DIWALI_ENABLED = true;
-const DIWALI_CODE = "DIWALI2K26";
-const DIWALI_START = new Date("2026-11-08T00:00:00+05:30").getTime();
-const DIWALI_END = new Date("2026-11-10T23:59:59+05:30").getTime();
-const BULB_COLORS = ["#ffb347", "#ff6b6b", "#ffe27a", "#ff9f43"];
-const SPARKLES = [
-  { left: "46%", top: "16%", size: 18, delay: "0s" },
-  { left: "60%", top: "72%", size: 14, delay: "1s" },
-  { left: "72%", top: "20%", size: 16, delay: "2s" },
-  { left: "88%", top: "64%", size: 20, delay: "0.6s" },
-  { left: "38%", top: "80%", size: 12, delay: "1.6s" },
-];
-
-const isDiwaliTime = () => {
-  const now = Date.now();
-  return DIWALI_ENABLED && now >= DIWALI_START && now <= DIWALI_END;
-};
+const NEW_USER_OFFER_ENABLED = true;
+const COUPON_CODE = "NEW26";
+const OFFER_PERCENT = 10;
 
 const banners = [
   {
     id: 0,
     img: bgWelcome,
     mobPos: "50% 50%",
-    eyebrow: "Vedic Astrology & Vastu",
-    title: "Acharya Seemaa Singh",
-    tagline: "Astrologer · Vastu Expert · Life Coach",
-    text: "20+ years of authentic Vedic knowledge and 50,000+ consultations, with practical guidance for career, relationships, health and life's purpose.",
+    eyebrow: "Namaste · Welcome",
+    title: "Welcome, you are in good hands",
+    tagline: "Acharya Seemaa Singh · Astrologer · Vastu Expert · Life Coach",
+    text: "Whatever brings you here, a question about marriage, career, money, health or peace of mind, Seemaa Ji welcomes you with patience and care, and offers honest, practical guidance.",
     stats: [
       { num: "20+", label: "Years Exp." },
       { num: "50K+", label: "Clients" },
       { num: "100%", label: "Authentic" },
     ],
+    offer: true,
     cta: "Book Consultation",
   },
   {
@@ -88,27 +75,10 @@ const banners = [
   },
 ];
 
-const diwaliBanner = {
-  id: 0,
-  diwali: true,
-  img: bgWelcome,
-  mobPos: "50% 50%",
-  eyebrow: "Happy Diwali",
-  title: "Shubh Deepawali",
-  tagline: "Light up the year ahead with Vedic guidance",
-  text: "Warm Diwali wishes from Acharya Seemaa Singh. Celebrate with 10% off your online consultation using the code below.",
-  cta: "Book Consultation",
-};
-
 const Home = () => {
   const [active, setActive] = useState(0);
-  const [diwali, setDiwali] = useState(false);
   const [copied, setCopied] = useState(false);
   const total = banners.length;
-
-  useEffect(() => {
-    setDiwali(isDiwaliTime());
-  }, []);
 
   useEffect(() => {
     const t = setInterval(() => setActive((p) => (p + 1) % total), 7500);
@@ -117,14 +87,12 @@ const Home = () => {
 
   const prev = () => setActive((active - 1 + total) % total);
   const next = () => setActive((active + 1) % total);
-  const list = diwali
-    ? banners.map((x) => (x.id === 0 ? diwaliBanner : x))
-    : banners;
-  const b = list[active];
+  const b = banners[active];
   const welcome = b.id === 0;
+  const showOffer = NEW_USER_OFFER_ENABLED && b.offer;
 
   const copyCode = () => {
-    const p = navigator.clipboard?.writeText(DIWALI_CODE);
+    const p = navigator.clipboard?.writeText(COUPON_CODE);
     if (!p) return;
     p.then(() => {
       setCopied(true);
@@ -144,64 +112,21 @@ const Home = () => {
 
   return (
     <>
-      {diwali && (
-        <style>{`
-          @keyframes dw-twinkle { 0%,100% { opacity: .55; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.1); } }
-          @keyframes dw-float { 0%,100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(-10px); opacity: 1; } }
-          .dw-bulb { display: block; width: 9px; height: 13px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; box-shadow: 0 0 10px 3px currentColor; animation: dw-twinkle 1.6s ease-in-out infinite; }
-          .dw-spark { position: absolute; animation: dw-float 4s ease-in-out infinite; }
-          @media (prefers-reduced-motion: reduce) { .dw-bulb, .dw-spark { animation: none; } }
-        `}</style>
-      )}
       <Navbar />
       <section className="w-full mt-25 overflow-hidden">
+        <h1 className="sr-only">
+          Seema Singh (Acharya Seemaa Singh): Vedic Astrologer, Tarot Reader and Vastu Expert
+        </h1>
         <div
           key={b.id}
           className="max-w-350 w-full mx-auto rounded-2xl overflow-hidden relative bg-[#140503] xl:aspect-1400/520"
         >
           <img
             src={b.img}
-            alt={b.diwali ? "Happy Diwali from Acharya Seemaa Singh" : b.title}
+            alt={b.title}
             className="w-full h-72 sm:h-80 md:h-96 xl:h-full xl:absolute xl:inset-0 object-cover"
             style={{ objectPosition: b.mobPos }}
           />
-
-          {b.diwali && (
-            <>
-              <div
-                className="absolute inset-0 z-10 pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(circle at 15% 100%, rgba(255,140,40,0.28), transparent 55%), radial-gradient(circle at 90% 0%, rgba(255,190,80,0.18), transparent 50%)",
-                }}
-              />
-              <div className="absolute top-1 inset-x-6 h-px z-30 pointer-events-none" style={{ background: g("55") }} aria-hidden="true" />
-              <div className="absolute top-0 inset-x-6 z-30 flex justify-between pointer-events-none" aria-hidden="true">
-                {Array.from({ length: 18 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className="dw-bulb"
-                    style={{
-                      color: BULB_COLORS[i % 4],
-                      background: BULB_COLORS[i % 4],
-                      marginTop: i % 2 ? 7 : 2,
-                      animationDelay: `${(i % 4) * 0.4}s`,
-                    }}
-                  />
-                ))}
-              </div>
-              {SPARKLES.map((s, i) => (
-                <span
-                  key={i}
-                  className="dw-spark hidden xl:block z-30 pointer-events-none"
-                  aria-hidden="true"
-                  style={{ left: s.left, top: s.top, fontSize: s.size, color: GOLD, animationDelay: s.delay }}
-                >
-                  ✦
-                </span>
-              ))}
-            </>
-          )}
 
           {welcome && (
             <div className="hidden xl:block absolute inset-y-0 left-0 w-[36%] z-20 bg-linear-to-r from-[#1a0500]/85 via-[#1a0500]/50 to-transparent" />
@@ -232,27 +157,7 @@ const Home = () => {
               {b.text}
             </p>
             <div className="mt-4">
-              {b.diwali ? (
-                <div className="flex flex-col items-center xl:items-start gap-2">
-                  <span className="text-xs tracking-wide text-[#F2EDE8]/80">
-                    Festive offer · 10% off
-                  </span>
-                  <button
-                    type="button"
-                    onClick={copyCode}
-                    aria-label={`Copy coupon code ${DIWALI_CODE}`}
-                    className="flex items-center gap-3 rounded-full px-4 py-2 border-2 border-dashed cursor-pointer backdrop-blur-sm"
-                    style={{ borderColor: GOLD, background: "rgba(0,0,0,.35)", color: CREAM }}
-                  >
-                    <span className="font-serif font-bold tracking-widest text-base" style={{ color: GOLD }}>
-                      {DIWALI_CODE}
-                    </span>
-                    <span className="text-xs uppercase tracking-wide">
-                      {copied ? "Copied!" : "Tap to copy"}
-                    </span>
-                  </button>
-                </div>
-              ) : b.stats ? (
+              {b.stats ? (
                 <div className="flex justify-center xl:justify-start gap-6">
                   {b.stats.map((s) => (
                     <div key={s.label} className="text-center">
@@ -275,6 +180,29 @@ const Home = () => {
                 </div>
               )}
             </div>
+
+            {showOffer && (
+              <div className="mt-4 flex flex-col items-center xl:items-start gap-1.5">
+                <span className="text-xs tracking-wide text-[#F2EDE8]/85">
+                  New here? Welcome gift: {OFFER_PERCENT}% off your online consultation
+                </span>
+                <button
+                  type="button"
+                  onClick={copyCode}
+                  aria-label={`Copy coupon code ${COUPON_CODE}`}
+                  className="flex items-center gap-3 rounded-full px-4 py-1.5 border-2 border-dashed cursor-pointer backdrop-blur-sm"
+                  style={{ borderColor: GOLD, background: "rgba(0,0,0,.35)", color: CREAM }}
+                >
+                  <span className="font-serif font-bold tracking-widest text-base" style={{ color: GOLD }}>
+                    {COUPON_CODE}
+                  </span>
+                  <span className="text-xs uppercase tracking-wide">
+                    {copied ? "Copied!" : "Tap to copy"}
+                  </span>
+                </button>
+              </div>
+            )}
+
             <div className="flex gap-3 flex-wrap justify-center xl:justify-start mt-5">
               <button
                 onClick={go("booking")}

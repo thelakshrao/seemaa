@@ -10,7 +10,7 @@ const BASE_PRICES_CAD = { 30: 150, 60: 200, 90: 250 };
 const BOOKED_KEY = "booked_slots_seemaa";
 const RATES_KEY = "inr_rates_seemaa";
 const RATES_TTL_MS = 6 * 60 * 60 * 1000;
-const COUPONS = { DIVIYAVEDIC: 0.1, DIWALI2K26: 0.1 };
+const COUPONS = { DIVIYAVEDIC: 0.1, NEW26: 0.1 };
 
 const COUNTRY_CONFIG = {
   India: { name: "India", tz: "Asia/Kolkata", code: "+91", currency: "INR", symbol: "₹", label: "India (+91)" },
@@ -928,7 +928,7 @@ const Booking = () => {
                             setCouponInput(e.target.value.toUpperCase());
                             setCouponError("");
                           }}
-                          placeholder="Enter Coupon Code"
+                          placeholder="Enter Coupon Code AND HIT APPLY BUTTON"
                           className="flex-1 bg-[#7A1E1E] text-white placeholder-white/60 p-3 rounded-lg outline-none uppercase tracking-widest text-sm"
                         />
                         <button
